@@ -1,7 +1,9 @@
 package com.xiaoma.zhangwei;
 
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.context.WebServerApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.server.HandlerFunction;
@@ -34,5 +36,12 @@ public class XiaoMaBootApplication {
                 request -> ok().body(
                         Mono.just("Today is " + new SimpleDateFormat("yyyy-MM-dd").format(new Date())), String.class);
         return route(GET("/world"), dateFunction);
+    }
+
+    @Bean
+    public ApplicationRunner runner(WebServerApplicationContext context){
+        return args -> {
+            System.out.println("当前webserver实现类为"+context.getWebServer().getClass().getName());
+        };
     }
 }
