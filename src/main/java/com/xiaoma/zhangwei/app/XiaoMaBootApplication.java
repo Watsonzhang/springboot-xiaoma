@@ -1,4 +1,4 @@
-package com.xiaoma.zhangwei;
+package com.xiaoma.zhangwei.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
