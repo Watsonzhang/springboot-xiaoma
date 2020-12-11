@@ -1,4 +1,4 @@
-package com.xiaoma.zhangwei.app;
+package com.xiaoma.zhangwei;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @Description:
  * @Date:Create：2020/12/11 上午10:30
  */
-@SpringBootApplication(scanBasePackages = "com.xiaoma.zhangwei.config")
+@SpringBootApplication
 public class XiaoMaBootApplication {
     public static void main(String[] args) {
         SpringApplication.run(XiaoMaBootApplication.class, args);
