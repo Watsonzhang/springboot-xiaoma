@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Import;
  * @Description:
  * @Date:Create：2020/12/11 下午5:47
  */
-//@Configuration
+@Configuration
 @Import(WebConfiguration.class)
 public class WebAutoConfiguration {
 
