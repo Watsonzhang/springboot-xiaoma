@@ -3,6 +3,7 @@ package com.xiaoma.zhangwei.app.config;
 import com.xiaoma.zhangwei.app.annotations.EnableHelloWorld;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.AbstractEnvironment;
 
 /**
  * @Author: zhangwei
@@ -18,5 +19,7 @@ public class EnableHelloWorldBootstrap {
         context.refresh();
         String helloWorld = context.getBean("helloWorld", String.class);
         System.out.println(helloWorld);
+
+
     }
 }
