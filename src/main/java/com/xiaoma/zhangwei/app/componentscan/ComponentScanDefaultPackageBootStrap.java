@@ -11,7 +11,7 @@ import java.util.List;
  * @Description:
  * @Date:Create：2020/12/16 下午5:40
  */
-@ComponentScan(basePackages = "com.xiaoma.zhangwei.app.componentscan")
+@ComponentScan(basePackageClasses = ComponentScanDefaultPackageBootStrap.class)
 public class ComponentScanDefaultPackageBootStrap {
     public static void main(String[] args) {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ComponentScanDefaultPackageBootStrap.class);
@@ -20,8 +20,5 @@ public class ComponentScanDefaultPackageBootStrap {
         list.forEach(item->{
             System.out.println(item);
         });
-
-        //MyComponent bean = context.getBean(MyComponent.class);
-        //System.out.println(bean);
     }
 }
