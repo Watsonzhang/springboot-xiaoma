@@ -1,4 +1,4 @@
-package com.xiaoma.zhangwei.thinking.app;
+package com.xiaoma.zhangwei;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
