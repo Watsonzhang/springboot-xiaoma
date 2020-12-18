@@ -7,6 +7,7 @@ import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatche
  * @Description:
  * @Date:Create：2020/12/16 下午4:10
  */
+@SuppressWarnings("unchecked")
 public class SpringWebMvcServletInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
     @Override
     protected Class<?>[] getRootConfigClasses() {
