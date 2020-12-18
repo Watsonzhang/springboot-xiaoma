@@ -1,6 +1,6 @@
 package com.xiaoma.zhangwei.app.annotations;
 
-import com.xiaoma.zhangwei.app.slelector.CachingConfigurationSelector;
+import com.xiaoma.zhangwei.app.selector.CachingConfigurationSelector;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.*;

@@ -1,10 +1,9 @@
-package com.xiaoma.zhangwei.app.slelector;
+package com.xiaoma.zhangwei.app.selector;
 
 import com.xiaoma.zhangwei.app.annotations.EnableCaching;
 import org.springframework.cache.annotation.ProxyCachingConfiguration;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.AdviceModeImportSelector;
-import org.springframework.context.annotation.AnnotationConfigUtils;
 import org.springframework.context.annotation.AutoProxyRegistrar;
 
 /**
