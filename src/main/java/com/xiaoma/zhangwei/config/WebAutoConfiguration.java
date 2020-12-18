@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Import;
  * @Date:Create：2020/12/11 下午5:47
  */
 @Configuration
-@Import(WebConfiguration.class)
+//@Import(WebConfiguration.class)
 public class WebAutoConfiguration {
 
 }
