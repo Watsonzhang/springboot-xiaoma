@@ -14,5 +14,6 @@ public class PathUtil {
     public static  String getRZOfdXMLPath(){
         return "ruizhen/OFD.xml";
     }
+    public static  String getRZContentXMLPath(){ return "ruizhen/Doc_0/Document.xml"; }
 }
 
