@@ -33,6 +33,7 @@ public class Invoice {
     private List<GoodsInfo> goodsInfos;
 
     @Data
+    @Builder
     public static class Seller{
         private String sellerName;
         private String sellerTaxID;
@@ -40,6 +41,7 @@ public class Invoice {
         private String sellerFinancialAccount;
     }
     @Data
+    @Builder
     public static class Buyer{
         private String buyerName;
         private String buyerTaxID;
@@ -48,6 +50,7 @@ public class Invoice {
     }
 
     @Data
+    @Builder
     public static class GoodsInfo{
         private String Item;
         private String Specification;
