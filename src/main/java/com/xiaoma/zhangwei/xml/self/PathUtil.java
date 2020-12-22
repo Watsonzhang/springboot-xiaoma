@@ -15,5 +15,6 @@ public class PathUtil {
         return "ruizhen/OFD.xml";
     }
     public static  String getRZContentXMLPath(){ return "ruizhen/Doc_0/Document.xml"; }
+    public static  String getRZPageXMLPath(){ return "ruizhen/Doc_0/TPLS/TPL_0/Content.xml"; }
 }
 

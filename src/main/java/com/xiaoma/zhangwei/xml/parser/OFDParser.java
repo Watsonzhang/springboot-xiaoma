@@ -26,6 +26,7 @@ public class OFDParser {
 	public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException, ParseException {
 		// TODO Auto-generated method stub
 		OFD ofd=makeOFD(PathUtil.getRZOfdXMLPath());
+		System.out.println(ofd.getDocBodies());
 	}
 	
 	
