@@ -23,7 +23,8 @@ public class InvoiceParser {
     public static final String docNS = "http://www.edrm.org.cn/schema/e-invoice/2019";
 
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException {
-        makeInvoice(PathUtil.getInvoiceXMLPath());
+        //makeInvoice(PathUtil.getInvoiceXMLPath());
+        makeInvoice(PathUtil.getYZFInvoiceXMLPath());
     }
 
     private static void makeInvoice(String invoiceXMLPath) throws IOException, SAXException, ParserConfigurationException {
