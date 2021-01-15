@@ -1,4 +1,4 @@
-package com.xiaoma.zhangwei.app;
+package com.xiaoma;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,12 +6,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * @Author: zhangwei
  * @Description:
- * @Date:Create：2020/12/11 上午10:30
+ * @Date:Create：2020/12/18 下午2:58
  */
 @SpringBootApplication
-public class XiaoMaBootApplication {
+public class App {
     public static void main(String[] args) {
-        SpringApplication.run(XiaoMaBootApplication.class, args);
+        SpringApplication.run(App.class, args);
     }
-
 }
