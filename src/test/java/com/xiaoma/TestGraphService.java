@@ -118,11 +118,6 @@ public class TestGraphService {
 
 
     private Runnable apply(TaxEntity item) {
-        return new Runnable() {
-            @Override
-            public void run() {
-                expressionService.execute(item.getExpression());
-            }
-        };
+        return () -> expressionService.execute(item.getExpression());
     }
 }
