@@ -1,5 +1,6 @@
 package com.xiaoma;
 
+import com.google.common.collect.Lists;
 import com.xiaoma.aviator.ExpressionService;
 import com.xiaoma.entity.TaxEntity;
 import com.xiaoma.model.dto.TaxDTO;
@@ -11,8 +12,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 /**
  * @Author: zhangwei
@@ -53,6 +58,9 @@ public class TestGraphService {
 
     @Test
     public void testAddMiddleNode() {
+        TaxDTO node8 = TaxDTO.builder().name("四级1")
+                .expression("[e]")//原子节点
+                .build();
         TaxDTO node4 = TaxDTO.builder().name("三级4")
                 .expression("[a]")//原子节点
                 .build();
@@ -64,7 +72,6 @@ public class TestGraphService {
                 .build();
         TaxDTO node7 = TaxDTO.builder().name("三级7")
                 .expression("[d]").build();//原子节点
-
         TaxDTO node2 = TaxDTO.builder().name("二级2")
                 .children(Arrays.asList(node4,node5))
                 .expression("[三级4]+[三级5]")
@@ -73,6 +80,7 @@ public class TestGraphService {
                 .children(Arrays.asList(node6,node7))
                 .expression("[三级6]-[三级7]")
                 .build();
+        node4.setChildren(Arrays.asList(node8,node3));
         TaxDTO node1 = TaxDTO.builder().name("一级1").id(1L)
                 .children(Arrays.asList(node2,node3))
                 .expression("[二级3]+[二级2]")
@@ -88,6 +96,33 @@ public class TestGraphService {
     }
 
 
+    @Test
+    public void testGetLeafNodes(){
+        TaxEntity taxEntity = graphService.findById(999L);
+        List<TaxEntity> objects = Lists.newArrayList();
+        graphService.getLeafNodes(taxEntity,objects);
+        System.out.println(objects);
+    }
+
+    @Test
+    public void testThreadPool(){
+        TaxEntity taxEntity = graphService.findById(999L);
+        List<TaxEntity> objects = Lists.newArrayList();
+        graphService.getLeafNodes(taxEntity,objects);
+        List<Runnable> task= objects.stream().map(this::apply).collect(Collectors.toList());
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+        task.forEach(item->{
+           executor.execute(item);
+        });
+    }
 
 
+    private Runnable apply(TaxEntity item) {
+        return new Runnable() {
+            @Override
+            public void run() {
+                expressionService.execute(item.getExpression());
+            }
+        };
+    }
 }

@@ -3,6 +3,7 @@ package com.xiaoma.service;
 import com.xiaoma.entity.TaxEntity;
 import com.xiaoma.model.dto.TaxDTO;
 
+import javax.swing.text.html.parser.Entity;
 import java.util.List;
 
 /**
@@ -24,6 +25,8 @@ public interface GraphService {
     TaxEntity findById(Long id);
 
     void calculate(TaxEntity taxEntity);
+
+    void getLeafNodes(TaxEntity entity, List<TaxEntity> list);
 
 
 

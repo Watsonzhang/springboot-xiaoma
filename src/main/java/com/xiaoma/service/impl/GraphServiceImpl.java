@@ -15,8 +15,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
+import javax.swing.text.html.parser.Entity;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
@@ -55,21 +57,29 @@ public class GraphServiceImpl  implements GraphService {
 
     @Override
     public void addTaxNode(TaxDTO dto) {
-        TaxEntity taxEntity = buildRecurseTax(dto);
+        List<TaxEntity> list = Lists.newArrayList();
+        TaxEntity taxEntity = buildRecurseTax(dto,list);
         taxEntityRepository.save(taxEntity);
         System.out.println(taxEntity);
     }
 
-    private TaxEntity buildRecurseTax(TaxDTO dto) {
+    private TaxEntity buildRecurseTax(TaxDTO dto,List<TaxEntity> temp) {
         List<TaxDTO> children = dto.getChildren();
-        TaxEntity build = TaxEntity.builder().name(dto.getName()).id(getId())
-                .expression(dto.getExpression()).build();
+        TaxEntity build;
+        Optional<TaxEntity> any = temp.stream().filter(item -> item.getName().equals(dto.getName())).findAny();
+        if(!any.isPresent()){
+            build = TaxEntity.builder().name(dto.getName()).id(getId())
+                    .expression(dto.getExpression()).build();
+            temp.add(build);
+        }else {
+            build=any.get();
+        }
         if(CollectionUtils.isEmpty(children)){
             return build;
         }
         List<TaxEntity> list = Lists.newArrayList();
         children.forEach(item->{
-            TaxEntity taxEntity = buildRecurseTax(item);
+            TaxEntity taxEntity = buildRecurseTax(item,temp);
             list.add(taxEntity);
         });
         build.setChildren(list);
@@ -107,6 +117,16 @@ public class GraphServiceImpl  implements GraphService {
             taxEntity.setExpression(replace);
         }
         executeExpression(taxEntity);
+    }
+
+    @Override
+    public void getLeafNodes(TaxEntity entity, List<TaxEntity> list) {
+        if(CollectionUtils.isEmpty(entity.getChildren())){
+            list.add(entity);
+        }
+        entity.getChildren().forEach(item->{
+            getLeafNodes(item,list);
+        });
     }
 
 
