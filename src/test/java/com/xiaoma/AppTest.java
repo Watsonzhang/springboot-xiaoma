@@ -103,12 +103,6 @@ public class AppTest {
         });
     }
 
-
-    @Test
-    public void deleteBatch(){
-        taxEntityRepository.deleteAll();
-    }
-
     @Test
     public void testCalculate(){
         TaxEntity taxEntity = taxEntityRepository.findById(1L).orElse(null);
