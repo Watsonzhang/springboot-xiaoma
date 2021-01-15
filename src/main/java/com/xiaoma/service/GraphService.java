@@ -1,10 +1,8 @@
 package com.xiaoma.service;
 
-import com.xiaoma.repository.MovieRepository;
-import com.xiaoma.entity.PersonEntity;
-import com.xiaoma.repository.PersonRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.xiaoma.model.dto.TaxDTO;
+
+import java.util.List;
 
 /**
  * @Author: zhangwei
@@ -12,20 +10,17 @@ import org.springframework.stereotype.Service;
  * @Date:Create：2021/1/14 下午2:26
  */
 
-@Service
-public class GraphService {
+public interface GraphService {
 
-    @Autowired
-    MovieRepository movieRepository;
+    void testSave();
 
-    @Autowired
-    PersonRepository personRepository;
+    void addTaxNode(TaxDTO dto);
 
-    @Autowired
+    void addTaxNode(List<TaxDTO> dto);
+
+    void deleteAll();
 
 
-    public void testSave() {
-        PersonEntity build = PersonEntity.builder().name("个人节点").id(1000L).build();
-        personRepository.save(build);
-    }
+
+
 }
