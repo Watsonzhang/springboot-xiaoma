@@ -83,45 +83,11 @@ public class TestGraphService {
     @Test
     public void testCalculate(){
         TaxEntity taxEntity = graphService.findById(999L);
-        calculate(taxEntity);
+        graphService.calculate(taxEntity);
         System.out.println(taxEntity.getCalValue());
     }
 
-    private void calculate(TaxEntity taxEntity) {
-        if(CollectionUtils.isEmpty(taxEntity.getChildren())){
-            executeExpression(taxEntity);
-            return;
-        }
-        List<TaxEntity> children = taxEntity.getChildren();
-        for (TaxEntity item:children){
-            calculate(item);
-            String expression = taxEntity.getExpression();
-            String replace = expression.replace("["+item.getName()+"]", String.valueOf(item.getCalValue()));
-            taxEntity.setExpression(replace);
-        }
-        executeExpression(taxEntity);
-    }
 
-    private void executeExpression(TaxEntity taxEntity) {
-        if(taxEntity.getExpression().equals("[a]")){
-            taxEntity.setCalValue(1);
-            return;
-        }
-        if(taxEntity.getExpression().equals("[b]")){
-            taxEntity.setCalValue(2);
-            return;
-        }
-        if(taxEntity.getExpression().equals("[c]")){
-            taxEntity.setCalValue(3);
-            return;
-        }
-        if(taxEntity.getExpression().equals("[d]")){
-            taxEntity.setCalValue(4);
-            return;
-        }
-        Long execute = (Long)expressionService.execute(taxEntity.getExpression());
-        taxEntity.setCalValue(execute.intValue());
 
-    }
 
 }

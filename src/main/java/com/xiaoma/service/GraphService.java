@@ -23,6 +23,8 @@ public interface GraphService {
 
     TaxEntity findById(Long id);
 
+    void calculate(TaxEntity taxEntity);
+
 
 
 
