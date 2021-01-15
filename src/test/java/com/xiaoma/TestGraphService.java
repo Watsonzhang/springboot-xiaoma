@@ -1,5 +1,6 @@
 package com.xiaoma;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.xiaoma.aviator.ExpressionService;
 import com.xiaoma.entity.TaxEntity;
@@ -59,10 +60,10 @@ public class TestGraphService {
     @Test
     public void testAddMiddleNode() {
         TaxDTO node8 = TaxDTO.builder().name("四级1")
-                .expression("[e]")//原子节点
+                .expression("[a]")//原子节点
                 .build();
         TaxDTO node4 = TaxDTO.builder().name("三级4")
-                .expression("[a]")//原子节点
+                .expression("MAX([四级1],[二级3])")//
                 .build();
         TaxDTO node5 = TaxDTO.builder().name("三级5")
                 .expression("[b]")//原子节点
@@ -93,6 +94,15 @@ public class TestGraphService {
         TaxEntity taxEntity = graphService.findById(999L);
         graphService.calculate(taxEntity);
         System.out.println(taxEntity.getCalValue());
+        String str = JSONObject.toJSONString(taxEntity);
+        System.out.println(str);
+    }
+
+    @Test
+    public void testMAx(){
+        String s="MAX(1,2)";
+        Long execute = (Long)expressionService.execute(s);
+        System.out.println(execute);
     }
 
 
