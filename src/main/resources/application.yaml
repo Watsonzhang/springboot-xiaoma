@@ -1,3 +1,5 @@
+server:
+  port: 8090
 management:
   endpoints:
     web:
@@ -6,3 +8,9 @@ management:
           - beans
           - conditions
           - env
+spring:
+  data:
+    neo4j:
+      uri: bolt://172.24.188.3:7687
+      username: neo4j
+      password: s3cr3t
