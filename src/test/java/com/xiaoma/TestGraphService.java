@@ -1,5 +1,6 @@
 package com.xiaoma;
 
+import com.xiaoma.aviator.ExpressionService;
 import com.xiaoma.entity.TaxEntity;
 import com.xiaoma.model.dto.TaxDTO;
 import com.xiaoma.service.GraphService;
@@ -8,8 +9,10 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @Author: zhangwei
@@ -22,6 +25,9 @@ public class TestGraphService {
 
     @Autowired
     GraphService graphService;
+
+    @Autowired
+    ExpressionService expressionService;
 
     @Test
     public void  testAddTaxNode(){
@@ -73,4 +79,49 @@ public class TestGraphService {
                 .build();
         graphService.addTaxNode(node1);
     }
+
+    @Test
+    public void testCalculate(){
+        TaxEntity taxEntity = graphService.findById(999L);
+        calculate(taxEntity);
+        System.out.println(taxEntity.getCalValue());
+    }
+
+    private void calculate(TaxEntity taxEntity) {
+        if(CollectionUtils.isEmpty(taxEntity.getChildren())){
+            executeExpression(taxEntity);
+            return;
+        }
+        List<TaxEntity> children = taxEntity.getChildren();
+        for (TaxEntity item:children){
+            calculate(item);
+            String expression = taxEntity.getExpression();
+            String replace = expression.replace("["+item.getName()+"]", String.valueOf(item.getCalValue()));
+            taxEntity.setExpression(replace);
+        }
+        executeExpression(taxEntity);
+    }
+
+    private void executeExpression(TaxEntity taxEntity) {
+        if(taxEntity.getExpression().equals("[a]")){
+            taxEntity.setCalValue(1);
+            return;
+        }
+        if(taxEntity.getExpression().equals("[b]")){
+            taxEntity.setCalValue(2);
+            return;
+        }
+        if(taxEntity.getExpression().equals("[c]")){
+            taxEntity.setCalValue(3);
+            return;
+        }
+        if(taxEntity.getExpression().equals("[d]")){
+            taxEntity.setCalValue(4);
+            return;
+        }
+        Long execute = (Long)expressionService.execute(taxEntity.getExpression());
+        taxEntity.setCalValue(execute.intValue());
+
+    }
+
 }

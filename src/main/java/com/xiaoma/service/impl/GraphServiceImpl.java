@@ -84,8 +84,15 @@ public class GraphServiceImpl  implements GraphService {
         taxEntityRepository.deleteAll();
     }
 
+    @Override
+    public TaxEntity findById(Long id) {
+        return taxEntityRepository.findById(id).orElse(null);
+    }
+
 
     public Long getId(){
         return idStock.pop();
     }
+
+
 }

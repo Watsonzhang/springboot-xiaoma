@@ -1,5 +1,6 @@
 package com.xiaoma.service;
 
+import com.xiaoma.entity.TaxEntity;
 import com.xiaoma.model.dto.TaxDTO;
 
 import java.util.List;
@@ -19,6 +20,9 @@ public interface GraphService {
     void addTaxNode(List<TaxDTO> dto);
 
     void deleteAll();
+
+    TaxEntity findById(Long id);
+
 
 
 
