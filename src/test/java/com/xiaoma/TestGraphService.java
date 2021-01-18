@@ -298,16 +298,29 @@ public class TestGraphService {
         TaxEntity taxEntity = taxEntityRepository.findById(999L).orElse(null);
         ExecutorService executor = Executors.newFixedThreadPool(4);
         List<RelDTO> relList = Lists.newArrayList();
-        relList.add(RelDTO.builder().id(999L).relIds(Arrays.asList(998L,995L)).build());
-        relList.add(RelDTO.builder().id(998L).relIds(Arrays.asList(997L,992L)).build());
-        relList.add(RelDTO.builder().id(997L).relIds(Arrays.asList(996L,995L)).build());
-        relList.add(RelDTO.builder().id(995L).relIds(Arrays.asList(993L,994L)).build());
+        ArrayList<Long> l1 = new ArrayList<>();
+        l1.add(995L);
+        l1.add(998L);
+        ArrayList<Long> l2 = new ArrayList<>();
+        l2.add(997L);
+        l2.add(992L);
+        ArrayList<Long> l3 = new ArrayList<>();
+        l3.add(996L);
+        l3.add(995L);
+        ArrayList<Long> l4 = new ArrayList<>();
+        l4.add(993L);
+        l4.add(994L);
+        relList.add(RelDTO.builder().id(999L).relIds(l1).build());
+        relList.add(RelDTO.builder().id(998L).relIds(l2).build());
+        relList.add(RelDTO.builder().id(997L).relIds(l3).build());
+        relList.add(RelDTO.builder().id(995L).relIds(l4).build());
         while(!CollectionUtils.isEmpty(relList)){
             //可根据树或者计算单元容器获取树的叶子节点
             List<TaxEntity> leafNodes = getLeafNodeByRelList(relList);
             //并发执行叶子节点取数逻辑 取数成功后修改计算单元列表如果子节点都计算完毕这删除这个计算单元
             List<Runnable> task= leafNodes.stream().map(item->getResultAndModify(item,relList)).collect(Collectors.toList());
             task.forEach(executor::execute);
+            System.out.println(relList);
 
         }
 
@@ -316,11 +329,23 @@ public class TestGraphService {
 
     @Test
     public void restRemove(){
-        List<RelDTO> relList = Lists.newLinkedList();
-        relList.add(RelDTO.builder().id(999L).relIds(Arrays.asList(998L,995L)).build());
-        relList.add(RelDTO.builder().id(998L).relIds(Arrays.asList(997L,992L)).build());
-        relList.add(RelDTO.builder().id(997L).relIds(Arrays.asList(996L,995L)).build());
-        relList.add(RelDTO.builder().id(995L).relIds(Arrays.asList(993L,994L)).build());
+        List<RelDTO> relList = Lists.newArrayList();
+        ArrayList<Long> l1 = new ArrayList<>();
+        l1.add(995L);
+        l1.add(998L);
+        ArrayList<Long> l2 = new ArrayList<>();
+        l2.add(997L);
+        l2.add(992L);
+        ArrayList<Long> l3 = new ArrayList<>();
+        l3.add(996L);
+        l3.add(995L);
+        ArrayList<Long> l4 = new ArrayList<>();
+        l4.add(993L);
+        l4.add(994L);
+        relList.add(RelDTO.builder().id(999L).relIds(l1).build());
+        relList.add(RelDTO.builder().id(998L).relIds(l2).build());
+        relList.add(RelDTO.builder().id(997L).relIds(l3).build());
+        relList.add(RelDTO.builder().id(995L).relIds(l4).build());
         Iterator<RelDTO> iterator = relList.iterator();
         while (iterator.hasNext()) {
             RelDTO next = iterator.next();
@@ -329,6 +354,12 @@ public class TestGraphService {
             }
         }
         System.out.println(relList);
+    }
+
+    @Test//有点东西
+    public void testArrayListRemove(){
+        List<Integer> integers = Arrays.asList(1, 2, 4);
+        integers.remove(1);
     }
 
 
@@ -341,12 +372,14 @@ public class TestGraphService {
         };
     }
 
-    private void modifyList(List<RelDTO> relList, TaxEntity item) {
+    private synchronized void modifyList(List<RelDTO> relList, TaxEntity item) {
         relList.removeIf(i->{
             List<Long> relIds = i.getRelIds();
             relIds.removeIf(id -> id.equals(item.getId()));
+            i.setRelIds(relIds);
             return CollectionUtils.isEmpty(i.getRelIds());
         });
+        System.out.println(relList);
     }
 
 
