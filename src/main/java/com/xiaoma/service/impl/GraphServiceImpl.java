@@ -99,8 +99,23 @@ public class GraphServiceImpl  implements GraphService {
     }
 
     @Override
-    public TaxEntity findById(Long id) {
-        return taxEntityRepository.findById(id).orElse(null);
+    public TaxDTO findById(Long id) {
+        TaxEntity entity = taxEntityRepository.findById(id).orElse(null);
+        return buildByEntity(entity);
+    }
+
+    private TaxDTO buildByEntity(TaxEntity entity){
+        TaxDTO build = TaxDTO.builder().name(entity.getName()).expression(entity.getExpression()).build();
+        if(CollectionUtils.isEmpty(entity.getChildren())){
+             return build;
+         }
+        List<TaxDTO> children = Lists.newArrayList();
+        entity.getChildren().forEach(item->{
+             children.add(buildByEntity(item)) ;
+         });
+
+        build.setChildren(children);
+        return build;
     }
 
     @Override

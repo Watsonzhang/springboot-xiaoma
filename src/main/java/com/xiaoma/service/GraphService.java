@@ -22,7 +22,7 @@ public interface GraphService {
 
     void deleteAll();
 
-    TaxEntity findById(Long id);
+    TaxDTO findById(Long id);
 
     void calculate(TaxEntity taxEntity);
 

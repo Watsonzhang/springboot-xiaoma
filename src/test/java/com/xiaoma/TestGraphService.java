@@ -1,23 +1,29 @@
 package com.xiaoma;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.xiaoma.aviator.ExpressionService;
 import com.xiaoma.entity.TaxEntity;
+import com.xiaoma.model.bo.GetContentTask;
+import com.xiaoma.model.bo.MiddleBo;
+import com.xiaoma.model.bo.RelDTO;
+import com.xiaoma.model.bo.RelationDTO;
 import com.xiaoma.model.dto.TaxDTO;
+import com.xiaoma.repository.TaxEntityRepository;
 import com.xiaoma.service.GraphService;
 import org.junit.Test;
+import org.junit.platform.commons.util.StringUtils;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
@@ -35,6 +41,8 @@ public class TestGraphService {
     @Autowired
     ExpressionService expressionService;
 
+    @Autowired
+    TaxEntityRepository taxEntityRepository;
     @Test
     public void  testAddTaxNode(){
         TaxDTO leafA = TaxDTO.builder().name("叶子节点a").expression("[a]").build();
@@ -90,8 +98,14 @@ public class TestGraphService {
     }
 
     @Test
+    public void testSelect(){
+        TaxEntity taxEntity = taxEntityRepository.findById(999L).orElse(null);
+        System.out.println(JSON.toJSONString(taxEntity, SerializerFeature.DisableCircularReferenceDetect));
+    }
+
+    @Test
     public void testCalculate(){
-        TaxEntity taxEntity = graphService.findById(999L);
+        TaxEntity taxEntity = taxEntityRepository.findById(999L).orElse(null);
         graphService.calculate(taxEntity);
         System.out.println(taxEntity.getCalValue());
         String str = JSONObject.toJSONString(taxEntity);
@@ -108,7 +122,7 @@ public class TestGraphService {
 
     @Test
     public void testGetLeafNodes(){
-        TaxEntity taxEntity = graphService.findById(999L);
+        TaxEntity taxEntity = taxEntityRepository.findById(999L).orElse(null);
         List<TaxEntity> objects = Lists.newArrayList();
         graphService.getLeafNodes(taxEntity,objects);
         System.out.println(objects);
@@ -116,7 +130,7 @@ public class TestGraphService {
 
     @Test
     public void testThreadPool(){
-        TaxEntity taxEntity = graphService.findById(999L);
+        TaxEntity taxEntity = taxEntityRepository.findById(999L).orElse(null);
         List<TaxEntity> objects = Lists.newArrayList();
         graphService.getLeafNodes(taxEntity,objects);
         List<Runnable> task= objects.stream().map(this::apply).collect(Collectors.toList());
@@ -124,10 +138,222 @@ public class TestGraphService {
         task.forEach(item->{
            executor.execute(item);
         });
+
     }
 
 
     private Runnable apply(TaxEntity item) {
-        return () -> expressionService.execute(item.getExpression());
+        return () -> {
+            Long execute = (Long)expressionService.execute(item.getExpression());
+            item.setCalValue(execute.intValue());
+        };
+        // return () -> expressionService.execute(item.getExpression());
+    }
+
+
+    @Test
+    public void testAlgorithm(){
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+        TaxEntity taxEntity = taxEntityRepository.findById(999L).orElse(null);//root
+        //叶子节点
+        List<TaxEntity> leafNodes = Lists.newArrayList();
+        graphService.getLeafNodes(taxEntity,leafNodes);
+        //叶子节点去重
+        List<TaxEntity> distinctLeafNodes= distinctLeafNodes(leafNodes);
+        List<Runnable> task= leafNodes.stream().map(this::apply).collect(Collectors.toList());
+        task.forEach(item->{
+            executor.execute(item);
+        });
+        List<RelationDTO> relationDTOList = Lists.newArrayList();
+        iteratorTaxEntity(taxEntity,relationDTOList,0L);
+        System.out.println(relationDTOList);
+        List<RelationDTO> distinct= distinctList(relationDTOList);
+        List<RelationDTO> synList = Collections.synchronizedList(distinct);
+        TaxEntity middle = removeLeafNodeAndResStruct(taxEntity, leafNodes);
+        //维护所有子到父节的关系映射 ① 例如 节点8->节点2
+
+        //并发计算叶子节点并存储计算结果 ②
+        //摘除叶子节点 内存形成新树 值带入表达式 ③
+        //再次计算新树叶子节点②③
+
+
+
+    }
+
+    @Test
+    public void testFinal(){
+        //叶子节点
+        TaxEntity taxEntity = taxEntityRepository.findById(999L).orElse(null);//root
+        List<TaxEntity> leafNodes = Lists.newArrayList();
+        graphService.getLeafNodes(taxEntity,leafNodes);
+        List<TaxEntity> relationDTOList = Lists.newArrayList();
+
+
+    }
+
+
+    @Test
+    public void testTPool(){
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        CompletionService<String> completionService = new ExecutorCompletionService(executorService);
+        // 十个
+        long startTime = System.currentTimeMillis();
+        int count = 0;
+        for (int i = 0;i < 10;i ++) {
+            count ++;
+            GetContentTask getContentTask = new GetContentTask("micro" + i, 10);
+            completionService.submit(getContentTask);
+        }
+        System.out.println("提交完任务，主线程空闲了, 可以去做一些事情。");
+        // 假装做了8秒种其他事情
+        try {
+            Thread.sleep(8000);
+            System.out.println("主线程做完了，等待结果");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        try {
+            // 做完事情要结果
+            for (int i = 0;i < count;i ++) {
+                Future<String> result = completionService.take();
+                System.out.println(result.get());
+            }
+            long endTime = System.currentTimeMillis();
+            System.out.println("耗时 : " + (endTime - startTime) / 1000);
+        }  catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    private List<TaxEntity> distinctLeafNodes(List<TaxEntity> leafNodes) {
+        return leafNodes;
+    }
+
+
+    //去重算法
+    private List<RelationDTO> distinctList(List<RelationDTO> relationDTOList) {
+        Set<RelationDTO> set = new TreeSet<>((origin, target) -> {
+            int compareToResult = 1;//==0表示重复
+            if(origin.getId().equals(target.getId()) && origin.getParentId().equals(target.getParentId())) {
+                compareToResult = 0;
+            }
+            return compareToResult;
+        });
+        set.addAll(relationDTOList);
+        return new ArrayList<>(set);
+    }
+
+
+    private TaxEntity removeLeafNodeAndResStruct(TaxEntity entity,List<TaxEntity> entities){
+        /*if(hasChild(entity)){
+            for(TaxEntity i:entity.getChildren()){
+                if(!hasChild(i)){
+                    entity.setChildren(null);
+                    continue;
+                }
+                removeLeafNodeAndResStruct(i,entities);
+            }
+        }*/
+        return entity;
+    }
+    private void iteratorTaxEntity(TaxEntity entity,List<RelationDTO> list,Long parentId){
+        if(!hasChild(entity)){
+            RelationDTO build = RelationDTO.builder().id(entity.getId()).parentId(parentId).build();
+            list.add(build);
+            return;
+        }
+        for(TaxEntity item:entity.getChildren()){
+            RelationDTO build = RelationDTO.builder().id(item.getId()).parentId(entity.getId()).build();
+            list.add(build);
+            iteratorTaxEntity(item,list,entity.getId());
+        }
+    }
+
+
+    private void addToQueue(TaxEntity entity,ArrayBlockingQueue<TaxEntity> queue){
+        queue.add(entity);
+        if(hasChild(entity)){
+           for(TaxEntity item:entity.getChildren()){
+               addToQueue(item,queue);
+           }
+        }
+    }
+
+    private void addToList(TaxEntity entity,List<TaxEntity> list){
+        list.add(entity);
+        if(hasChild(entity)){
+            for(TaxEntity item:entity.getChildren()){
+                addToList(item,list);
+            }
+        }
+    }
+
+    private boolean hasChild(TaxEntity entity){
+        return  !CollectionUtils.isEmpty(entity.getChildren());
+    }
+
+    @Test
+    public void  test(){
+        //根据树生成计算单元 计算单元为深度为1的类树结构
+        TaxEntity taxEntity = taxEntityRepository.findById(999L).orElse(null);
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+        List<RelDTO> relList = Lists.newArrayList();
+        relList.add(RelDTO.builder().id(999L).relIds(Arrays.asList(998L,995L)).build());
+        relList.add(RelDTO.builder().id(998L).relIds(Arrays.asList(997L,992L)).build());
+        relList.add(RelDTO.builder().id(997L).relIds(Arrays.asList(996L,995L)).build());
+        relList.add(RelDTO.builder().id(995L).relIds(Arrays.asList(993L,994L)).build());
+        while(!CollectionUtils.isEmpty(relList)){
+            //可根据树或者计算单元容器获取树的叶子节点
+            List<TaxEntity> leafNodes = getLeafNodeByRelList(relList);
+            //并发执行叶子节点取数逻辑 取数成功后修改计算单元列表如果子节点都计算完毕这删除这个计算单元
+            List<Runnable> task= leafNodes.stream().map(item->getResultAndModify(item,relList)).collect(Collectors.toList());
+            task.forEach(executor::execute);
+
+        }
+
+
+    }
+
+    @Test
+    public void restRemove(){
+        List<RelDTO> relList = Lists.newLinkedList();
+        relList.add(RelDTO.builder().id(999L).relIds(Arrays.asList(998L,995L)).build());
+        relList.add(RelDTO.builder().id(998L).relIds(Arrays.asList(997L,992L)).build());
+        relList.add(RelDTO.builder().id(997L).relIds(Arrays.asList(996L,995L)).build());
+        relList.add(RelDTO.builder().id(995L).relIds(Arrays.asList(993L,994L)).build());
+        Iterator<RelDTO> iterator = relList.iterator();
+        while (iterator.hasNext()) {
+            RelDTO next = iterator.next();
+            if(next.getId().equals(998L)){
+                iterator.remove();
+            }
+        }
+        System.out.println(relList);
+    }
+
+
+
+    private Runnable getResultAndModify(TaxEntity item, List<RelDTO> relList) {
+        return () -> {
+            Long execute = (Long)expressionService.execute(item.getExpression());
+            item.setCalValue(execute.intValue());
+            modifyList(relList,item);
+        };
+    }
+
+    private void modifyList(List<RelDTO> relList, TaxEntity item) {
+        relList.removeIf(i->{
+            List<Long> relIds = i.getRelIds();
+            relIds.removeIf(id -> id.equals(item.getId()));
+            return CollectionUtils.isEmpty(i.getRelIds());
+        });
+    }
+
+
+    private List<TaxEntity> getLeafNodeByRelList(List<RelDTO> relList) {
+        List<TaxEntity> leafNodes = Lists.newArrayList();
+        TaxEntity taxEntity = taxEntityRepository.findById(999L).orElse(null);
+        graphService.getLeafNodes(taxEntity,leafNodes);
+        return leafNodes;
     }
 }
