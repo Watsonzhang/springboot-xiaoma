@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.xiaoma.aviator.ExpressionService;
 import com.xiaoma.entity.TaxEntity;
 import com.xiaoma.model.bo.GetContentTask;
@@ -318,9 +317,15 @@ public class TestGraphService {
             //可根据树或者计算单元容器获取树的叶子节点
             List<TaxEntity> leafNodes = getLeafNodeByRelList(relList);
             //并发执行叶子节点取数逻辑 取数成功后修改计算单元列表如果子节点都计算完毕这删除这个计算单元
-            List<Runnable> task= leafNodes.stream().map(item->getResultAndModify(item,relList)).collect(Collectors.toList());
+           /* List<Runnable> task= leafNodes.stream().map(item->getResultAndModify(item,relList)).collect(Collectors.toList());
             task.forEach(executor::execute);
-            System.out.println(relList);
+            System.out.println(relList);*/
+            Set<Callable<Long>> callableSet = new HashSet<>();
+            leafNodes.forEach(item->{
+                callableSet.add(new RelBo(relList));
+            });
+            System.out.println(callableSet);
+
 
         }
 
