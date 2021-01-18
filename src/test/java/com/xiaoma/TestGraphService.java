@@ -292,7 +292,7 @@ public class TestGraphService {
     }
 
     @Test
-    public void  test(){
+    public void  test() throws InterruptedException, ExecutionException {
         //根据树生成计算单元 计算单元为深度为1的类树结构
         TaxEntity taxEntity = taxEntityRepository.findById(999L).orElse(null);
         ExecutorService executor = Executors.newFixedThreadPool(4);
@@ -317,14 +317,15 @@ public class TestGraphService {
             //可根据树或者计算单元容器获取树的叶子节点
             List<TaxEntity> leafNodes = getLeafNodeByRelList(relList);
             //并发执行叶子节点取数逻辑 取数成功后修改计算单元列表如果子节点都计算完毕这删除这个计算单元
-           /* List<Runnable> task= leafNodes.stream().map(item->getResultAndModify(item,relList)).collect(Collectors.toList());
-            task.forEach(executor::execute);
-            System.out.println(relList);*/
             Set<Callable<Long>> callableSet = new HashSet<>();
             leafNodes.forEach(item->{
                 callableSet.add(new RelBo(relList));
             });
-            System.out.println(callableSet);
+            List<Future<Long>> futures = executor.invokeAll(callableSet);
+            for(Future<Long> stringFuture : futures) {
+                System.out.println("future task: " + stringFuture.get());
+            }
+            System.out.println(relList);
 
 
         }
