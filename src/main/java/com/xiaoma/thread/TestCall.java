@@ -26,5 +26,6 @@ public class TestCall {
         for(Future<Integer> stringFuture : futures) {
             System.out.println("future task: " + stringFuture.get());
         }
+        executor.shutdown();
     }
 }
