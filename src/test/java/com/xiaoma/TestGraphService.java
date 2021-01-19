@@ -208,24 +208,9 @@ public class TestGraphService {
         //根据树生成计算单元 计算单元为深度为1的类树结构
         TaxEntity taxEntity = taxEntityRepository.findById(999L).orElse(null);
         ExecutorService executor = Executors.newFixedThreadPool(4);
-        List<RelDTO> relList = Lists.newArrayList();
-        ArrayList<Long> l1 = new ArrayList<>();
-        l1.add(995L);
-        l1.add(998L);
-        ArrayList<Long> l2 = new ArrayList<>();
-        l2.add(997L);
-        l2.add(992L);
-        ArrayList<Long> l3 = new ArrayList<>();
-        l3.add(996L);
-        l3.add(995L);
-        ArrayList<Long> l4 = new ArrayList<>();
-        l4.add(993L);
-        l4.add(994L);
-        relList.add(RelDTO.builder().id(999L).relIds(l1).build());
-        relList.add(RelDTO.builder().id(998L).relIds(l2).build());
-        relList.add(RelDTO.builder().id(997L).relIds(l3).build());
-        relList.add(RelDTO.builder().id(995L).relIds(l4).build());
-
+        List<RelDTO> emptyList = Lists.newArrayList();
+        generateRelList(taxEntity,emptyList);
+        List<RelDTO> relList=emptyList.stream().distinct().collect(Collectors.toList());
         List<RelDTO> copyRelList = ListUtils.deepCopy(relList);
         long start = System.currentTimeMillis();
         System.out.println("开始");
@@ -253,6 +238,18 @@ public class TestGraphService {
         long stop = System.currentTimeMillis();
         long via= stop-start;
         System.out.println("共耗时"+via);
+    }
+
+    private void generateRelList(TaxEntity taxEntity, List<RelDTO> relList) {
+       if(hasChild(taxEntity)){
+           List<Long> collect = taxEntity.getChildren().stream().map(TaxEntity::getId).collect(Collectors.toList());
+           RelDTO build = RelDTO.builder().id(taxEntity.getId()).relIds(collect).build();
+           relList.add(build);
+           for(TaxEntity item:taxEntity.getChildren()){
+               generateRelList(item,relList);
+           }
+       }
+
     }
 
     private void changeParent(JsonResultBO bo, TaxEntity taxEntity, List<RelDTO> copyRelList) {
