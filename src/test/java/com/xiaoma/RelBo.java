@@ -30,7 +30,6 @@ public class RelBo implements Callable<String> {
         synchronized (RelBo.class){
             modifyList(list,this.getEntity());
         }
-
         return JSON.toJSONString(new JsonResultBO(entity.getId(),execute));
     }
 
