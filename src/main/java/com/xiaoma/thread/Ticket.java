@@ -18,6 +18,7 @@ public class Ticket implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         synchronized (Ticket.class){
+            System.out.println("子线程线程"+Thread.currentThread().getId());
             Thread.sleep(200);
             MyData data = getData();
             data.setNumber(data.getNumber()-1);

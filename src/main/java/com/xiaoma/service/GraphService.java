@@ -24,12 +24,11 @@ public interface GraphService {
 
     TaxDTO findById(Long id);
 
+    //递归计算方法
     void calculate(TaxEntity taxEntity);
 
     void getLeafNodes(TaxEntity entity, List<TaxEntity> list);
 
-
-
-
+    List<TaxEntity> findByIds(List<Long> ids);
 
 }

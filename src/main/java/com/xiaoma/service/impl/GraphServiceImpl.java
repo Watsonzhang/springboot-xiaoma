@@ -144,6 +144,11 @@ public class GraphServiceImpl  implements GraphService {
         });
     }
 
+    @Override
+    public List<TaxEntity> findByIds(List<Long> ids) {
+        return ids.stream().map(item -> taxEntityRepository.findById(item).orElse(null)).collect(Collectors.toList());
+    }
+
 
     public Long getId(){
         return idStock.pop();

@@ -25,8 +25,8 @@ public class TestCall {
         list.add(new Ticket(myData));
         list.add(new Ticket(myData));
         list.add(new Ticket(myData));
-        System.out.println(list);
         List<Future<Integer>> futures = executor.invokeAll(list);
+        System.out.println("main线程"+Thread.currentThread().getId());
         for(Future<Integer> stringFuture : futures) {
             System.out.println("future task: " + stringFuture.get());
         }
