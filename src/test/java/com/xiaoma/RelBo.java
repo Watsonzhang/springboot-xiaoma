@@ -1,5 +1,6 @@
 package com.xiaoma;
 
+import com.xiaoma.entity.TaxEntity;
 import com.xiaoma.model.bo.RelDTO;
 import lombok.Data;
 
@@ -8,10 +9,13 @@ import java.util.concurrent.Callable;
 
 @Data
 public class RelBo implements Callable<Long> {
-    private volatile List<RelDTO> list;
 
-    public RelBo(List<RelDTO> list) {
+    private  List<RelDTO> list;
+    private TaxEntity entity;
+
+    public RelBo(List<RelDTO> list, TaxEntity entity) {
         this.list = list;
+        this.entity = entity;
     }
 
     @Override

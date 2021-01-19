@@ -7,16 +7,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 
+@Data
 public class Ticket implements Callable<Integer> {
-    private AtomicInteger integer;
+    private MyData data;
 
-    public Ticket(AtomicInteger integer) {
-        this.integer=integer;
+    public Ticket(MyData data) {
+        this.data = data;
     }
 
     @Override
     public Integer call() throws Exception {
-        Thread.sleep(100);
-        return integer.getAndDecrement();
+        synchronized (Ticket.class){
+            Thread.sleep(200);
+            MyData data = getData();
+            data.setNumber(data.getNumber()-1);
+            return data.getNumber();
+        }
     }
 }

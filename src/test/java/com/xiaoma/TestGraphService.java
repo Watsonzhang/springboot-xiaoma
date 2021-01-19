@@ -319,7 +319,7 @@ public class TestGraphService {
             //并发执行叶子节点取数逻辑 取数成功后修改计算单元列表如果子节点都计算完毕这删除这个计算单元
             Set<Callable<Long>> callableSet = new HashSet<>();
             leafNodes.forEach(item->{
-                callableSet.add(new RelBo(relList));
+                callableSet.add(new RelBo(relList,item));
             });
             List<Future<Long>> futures = executor.invokeAll(callableSet);
             for(Future<Long> stringFuture : futures) {
