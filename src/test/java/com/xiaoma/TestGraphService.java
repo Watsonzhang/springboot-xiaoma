@@ -220,7 +220,7 @@ public class TestGraphService {
             //并发执行叶子节点取数逻辑 取数成功后修改计算单元列表如果子节点都计算完毕这删除这个计算单元
             List<TaxEntity> targetLeaf = leafNodes.stream().distinct().collect(Collectors.toList());
             Set<Callable<String>> callableSet = new HashSet<>();
-            leafNodes.forEach(item->{
+            targetLeaf.forEach(item->{
                 callableSet.add(new RelBo(relList,item,expressionService));
             });
             List<Future<String>> futures = executor.invokeAll(callableSet);
