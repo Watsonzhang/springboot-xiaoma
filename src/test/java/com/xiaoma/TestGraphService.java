@@ -227,6 +227,8 @@ public class TestGraphService {
         relList.add(RelDTO.builder().id(995L).relIds(l4).build());
 
         List<RelDTO> copyRelList = ListUtils.deepCopy(relList);
+        long start = System.currentTimeMillis();
+        System.out.println("开始");
         while(!CollectionUtils.isEmpty(relList)){
             //可根据树或者计算单元容器获取树的叶子节点
             List<TaxEntity> leafNodes = getLeafNodeByRelList(relList,taxEntity);
@@ -248,8 +250,9 @@ public class TestGraphService {
         Long value = (Long)expressionService.execute(taxEntity.getExpression());
         taxEntity.setCalValue(value.intValue());
         System.out.println(JSON.toJSONString(taxEntity,SerializerFeature.DisableCircularReferenceDetect));
-
-
+        long stop = System.currentTimeMillis();
+        long via= stop-start;
+        System.out.println("共耗时"+via);
     }
 
     private void changeParent(JsonResultBO bo, TaxEntity taxEntity, List<RelDTO> copyRelList) {
