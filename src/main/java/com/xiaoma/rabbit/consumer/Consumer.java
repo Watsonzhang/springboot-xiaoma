@@ -13,7 +13,7 @@ import java.util.Map;
  */
 
 
-//@Component
+@Component
 @RabbitListener(queues = "TestDirectQueue",executor ="rabbitExec" )//监听的队列名称 TestDirectQueu
 public class Consumer {
     @RabbitHandler()
