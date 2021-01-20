@@ -13,10 +13,10 @@ import java.util.Map;
  */
 
 
-@Component
-@RabbitListener(queues = "TestDirectQueue")//监听的队列名称 TestDirectQueu
+//@Component
+@RabbitListener(queues = "TestDirectQueue",executor ="rabbitExec" )//监听的队列名称 TestDirectQueu
 public class Consumer {
-    @RabbitHandler
+    @RabbitHandler()
     public void process(Map testMessage) {
         System.out.println( Thread.currentThread().getName());
         System.out.println( Thread.currentThread().getId());

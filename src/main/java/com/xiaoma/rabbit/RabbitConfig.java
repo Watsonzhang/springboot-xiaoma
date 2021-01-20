@@ -10,7 +10,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 /**
@@ -76,6 +79,17 @@ public class RabbitConfig {
     @Bean
     public Queue TestDirectQueue() {
         return new Queue("TestDirectQueue",true);
+    }
+
+    @Bean
+    public TaskExecutor rabbitExec(){
+        ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
+        threadPoolTaskExecutor.setThreadNamePrefix("Async-");
+        threadPoolTaskExecutor.setCorePoolSize(10);
+        threadPoolTaskExecutor.setMaxPoolSize(20);
+        threadPoolTaskExecutor.setQueueCapacity(600);
+        threadPoolTaskExecutor.afterPropertiesSet();
+        return threadPoolTaskExecutor;
     }
 
 
