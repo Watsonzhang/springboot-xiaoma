@@ -14,3 +14,8 @@ spring:
       uri: bolt://172.24.188.3:7687
       username: neo4j
       password: s3cr3t
+  rabbitmq:
+    host: 172.23.60.6
+    port: 5672
+    username: guest
+    password: guest
