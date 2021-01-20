@@ -15,6 +15,7 @@ public class ExpressionService {
 
     public Object execute(String exp) {
         try {
+
             if(exp.equals("[a]")){
                 return 1L;
             }

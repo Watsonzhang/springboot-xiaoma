@@ -107,7 +107,11 @@ public class TestGraphService {
     @Test
     public void testCalculate(){
         TaxEntity taxEntity = taxEntityRepository.findById(999L).orElse(null);
+        long start = System.currentTimeMillis();
         graphService.calculate(taxEntity);
+        long stop = System.currentTimeMillis();
+        long via= stop-start;
+        System.out.println("共耗时"+via);
         System.out.println(taxEntity.getCalValue());
         String str = JSONObject.toJSONString(taxEntity);
         System.out.println(str);
@@ -226,6 +230,7 @@ public class TestGraphService {
             List<Future<String>> futures = executor.invokeAll(callableSet);
             for(Future<String> stringFuture : futures) {
                 JsonResultBO jsonResultBO = JSON.parseObject(stringFuture.get(), JsonResultBO.class);
+                assert taxEntity != null;
                 changeTreeTemplate(taxEntity,jsonResultBO);
                 changeParent(jsonResultBO,taxEntity,copyRelList);
             }
