@@ -123,45 +123,6 @@ public class TestGraphService {
         Long execute = (Long)expressionService.execute(s);
         System.out.println(execute);
     }
-
-    @Test
-    public void testTPool(){
-        ExecutorService executorService = Executors.newCachedThreadPool();
-        CompletionService<String> completionService = new ExecutorCompletionService(executorService);
-        // 十个
-        long startTime = System.currentTimeMillis();
-        int count = 0;
-        for (int i = 0;i < 10;i ++) {
-            count ++;
-            GetContentTask getContentTask = new GetContentTask("micro" + i, 10);
-            completionService.submit(getContentTask);
-        }
-        System.out.println("提交完任务，主线程空闲了, 可以去做一些事情。");
-        // 假装做了8秒种其他事情
-        try {
-            Thread.sleep(8000);
-            System.out.println("主线程做完了，等待结果");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        try {
-            // 做完事情要结果
-            for (int i = 0;i < count;i ++) {
-                Future<String> result = completionService.take();
-                System.out.println(result.get());
-            }
-            long endTime = System.currentTimeMillis();
-            System.out.println("耗时 : " + (endTime - startTime) / 1000);
-        }  catch (Exception ex) {
-            System.out.println(ex.getMessage());
-        }
-    }
-
-    private List<TaxEntity> distinctLeafNodes(List<TaxEntity> leafNodes) {
-        return leafNodes;
-    }
-
-
     //去重算法
     private List<RelationDTO> distinctList(List<RelationDTO> relationDTOList) {
         Set<RelationDTO> set = new TreeSet<>((origin, target) -> {
@@ -174,34 +135,6 @@ public class TestGraphService {
         set.addAll(relationDTOList);
         return new ArrayList<>(set);
     }
-
-
-    private TaxEntity removeLeafNodeAndResStruct(TaxEntity entity,List<TaxEntity> entities){
-        /*if(hasChild(entity)){
-            for(TaxEntity i:entity.getChildren()){
-                if(!hasChild(i)){
-                    entity.setChildren(null);
-                    continue;
-                }
-                removeLeafNodeAndResStruct(i,entities);
-            }
-        }*/
-        return entity;
-    }
-    private void iteratorTaxEntity(TaxEntity entity,List<RelationDTO> list,Long parentId){
-        if(!hasChild(entity)){
-            RelationDTO build = RelationDTO.builder().id(entity.getId()).parentId(parentId).build();
-            list.add(build);
-            return;
-        }
-        for(TaxEntity item:entity.getChildren()){
-            RelationDTO build = RelationDTO.builder().id(item.getId()).parentId(entity.getId()).build();
-            list.add(build);
-            iteratorTaxEntity(item,list,entity.getId());
-        }
-    }
-
-
 
     private boolean hasChild(TaxEntity entity){
         return  !CollectionUtils.isEmpty(entity.getChildren());
