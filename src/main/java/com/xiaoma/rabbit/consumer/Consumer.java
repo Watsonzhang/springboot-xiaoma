@@ -14,10 +14,11 @@ import java.util.Map;
 
 
 @Component
-@RabbitListener(queues = "TestDirectQueue",executor ="rabbitExec" )//监听的队列名称 TestDirectQueu
+@RabbitListener(queues = "TestDirectQueue",containerFactory ="rabbitListenerContainerFactory" )//监听的队列名称 TestDirectQueu
 public class Consumer {
     @RabbitHandler()
-    public void process(Map testMessage) {
+    public void process(Map testMessage) throws InterruptedException {
+        Thread.sleep(1000L);
         System.out.println( Thread.currentThread().getName());
         System.out.println( Thread.currentThread().getId());
         System.out.println("DirectReceiver消费者收到消息  : " + testMessage.toString());

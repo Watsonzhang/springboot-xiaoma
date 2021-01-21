@@ -1,6 +1,8 @@
 package com.xiaoma.rabbit;
 
+import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -47,7 +49,6 @@ public class RabbitConfig {
     @Primary
     public ConnectionFactory connectionFactory() {
         CachingConnectionFactory factory = new CachingConnectionFactory();
-        factory.setExecutor(Executors.newFixedThreadPool(8));
         factory.setHost(host);
         factory.setPort(port);
         factory.setUsername(username);
@@ -58,13 +59,30 @@ public class RabbitConfig {
     }
 
     @Bean
+    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
+            ConnectionFactory connectionFactory) {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        // 此处使用 Jackson2JsonMessageConverter 能保证对象序列化回来, 否则可能会有序列化问题(比如类全名)
+        factory.setMessageConverter(new Jackson2JsonMessageConverter());
+        factory.setTaskExecutor(rabbitExec());
+        factory.setAcknowledgeMode(AcknowledgeMode.MANUAL);
+        // 最大并发消费
+        factory.setMaxConcurrentConsumers(
+                50);
+        // 最小并发消费
+        factory.setConcurrentConsumers(10);
+        return factory;
+    }
+
+    @Bean
     public RabbitTemplate rabbitTemplate() {
         RabbitTemplate template = new RabbitTemplate(connectionFactory());
         // 开启回调
         template.setMandatory(true);
         // 用 json 的方式处理消息
         template.setMessageConverter(jsonMessageConverter());
-        //        消息确认  yml 需要配置   publisher-returns: true
+        //消息发送成功后回调
         template.setConfirmCallback((correlationData, ack, cause) ->
         {
             if (ack) {
@@ -84,7 +102,7 @@ public class RabbitConfig {
     @Bean
     public TaskExecutor rabbitExec(){
         ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
-        threadPoolTaskExecutor.setThreadNamePrefix("Async-");
+        threadPoolTaskExecutor.setThreadNamePrefix("Rabbit-Async-");
         threadPoolTaskExecutor.setCorePoolSize(10);
         threadPoolTaskExecutor.setMaxPoolSize(20);
         threadPoolTaskExecutor.setQueueCapacity(600);

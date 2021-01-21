@@ -19,3 +19,6 @@ spring:
     port: 5672
     username: guest
     password: guest
+    maxConcurrentConsumers: 64
+    concurrentConsumers: 10
+    acknowledgeMode: manual
